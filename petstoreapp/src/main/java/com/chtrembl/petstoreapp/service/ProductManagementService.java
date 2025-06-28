@@ -63,6 +63,12 @@ public class ProductManagementService {
                         .toList();
             }
 
+            this.sessionUser.getTelemetryClient().trackEvent(
+                    String.format("PetStoreApp user %s is retrieved %s products from the ProductService",
+                            this.sessionUser.getName(), products.size()
+                    ),
+                    this.sessionUser.getCustomEventProperties(), null
+            );
             this.sessionUser.getTelemetryClient().trackMetric("petstore-products-received-number", products.size());
 
             log.info("Successfully retrieved {} products for category {} with tags {} [RequestID: {}, TraceID: {}]",
