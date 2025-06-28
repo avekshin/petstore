@@ -63,6 +63,8 @@ public class ProductManagementService {
                         .toList();
             }
 
+            this.sessionUser.getTelemetryClient().trackMetric("petstore-products-received-number", products.size());
+
             log.info("Successfully retrieved {} products for category {} with tags {} [RequestID: {}, TraceID: {}]",
                     products.size(), category, tags, requestId, traceId);
 
