@@ -4,6 +4,7 @@ rg="petstore-containerapps-rg"
 location="eastus"
 env_name="petstore-env"
 acr_name="perstorecontainerregistry"
+ai_name="petstore-insights"
 
 tag="latest"
 
@@ -160,4 +161,99 @@ set_container_app_environment_variable() {
     --name "$app" \
     --resource-group "$rg" \
     --set-env-vars "$key=$value"
+}
+
+create_app_insights() {
+  parse_named_args "$@"
+
+  if [[ -z "$rg" || -z "$location" || -z "$name" ]]; then
+    echo "Usage: create_app_insights --rg <resource_group> --location <region> --name <app_insights_name>"
+    return 1
+  fi
+
+  echo "📊 Creating Application Insights: $name in $location..."
+
+  az monitor app-insights component create \
+    --app "$name" \
+    --location "$location" \
+    --resource-group "$rg" \
+    --application-type web
+}
+
+get_app_insights_connection_string() {
+  parse_named_args "$@"
+
+  if [[ -z "$rg" || -z "$name" ]]; then
+    echo "Usage: get_app_insights_connection_string --rg <resource_group> --name <app_insights_name>"
+    return 1
+  fi
+
+  connection_string=$(az monitor app-insights component show \
+    --app "$name" \
+    --resource-group "$rg" \
+    --query connectionString -o tsv)
+}
+
+set_containerapp_app_insights() {
+  parse_named_args "$@"
+
+  if [[ -z "$rg" || -z "$app" || -z "$connection_string" ]]; then
+    echo "Usage: set_containerapp_app_insights --rg <resource_group> --app <container_app_name> --connection_string <conn_string>"
+    return 1
+  fi
+
+  echo "🔧 Setting Application Insights for container app $app..."
+
+  az containerapp update \
+    --name "$app" \
+    --resource-group "$rg" \
+    --set-env-vars APPLICATIONINSIGHTS_CONNECTION_STRING="$connection_string"
+}
+
+setup_app_insights_for_all_petstore_apps() {
+  apps=(petstoreapp petstoreorderservice petstorepetservice petstoreproductservice)
+
+  # Step 1: Create Application Insights
+  create_app_insights \
+    --rg "$rg" \
+    --location "$location" \
+    --name "$ai_name"
+
+  # Step 2: Get connection string
+  get_app_insights_connection_string \
+    --rg "$rg" \
+    --name "$ai_name"
+
+  # Step 3: Connect each app
+  for app in "${apps[@]}"; do
+    set_containerapp_app_insights \
+      --rg "$rg" \
+      --app "$app" \
+      --connection_string "$connection_string"
+  done
+}
+
+restart_all_petstore_apps() {
+  local apps=(petstoreapp petstoreorderservice petstorepetservice petstoreproductservice)
+
+  for app in "${apps[@]}"; do
+    echo "🔍 Getting active revision for $app..."
+    revision_name=$(az containerapp revision list \
+      --name "$app" \
+      --resource-group "$rg" \
+      --query "[?active].name" -o tsv)
+
+    if [[ -z "$revision_name" ]]; then
+      echo "⚠️  No active revision found for $app. Skipping."
+      continue
+    fi
+
+    echo "🔁 Restarting $app (revision: $revision_name)..."
+    az containerapp revision restart \
+      --name "$app" \
+      --resource-group "$rg" \
+      --revision "$revision_name"
+  done
+
+  echo "✅ All active PetStore app revisions restarted."
 }
