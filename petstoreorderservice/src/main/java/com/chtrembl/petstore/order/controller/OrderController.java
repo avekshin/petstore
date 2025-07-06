@@ -4,6 +4,7 @@ import com.chtrembl.petstore.order.model.Order;
 import com.chtrembl.petstore.order.model.Product;
 import com.chtrembl.petstore.order.service.OrderService;
 import com.chtrembl.petstore.order.service.ProductService;
+import com.chtrembl.petstore.order.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,6 +38,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final ProductService productService;
+    private final ReservationService reservationService;
 
     @Operation(
             summary = "Place an order for a product",
@@ -62,7 +64,9 @@ public class OrderController {
         // Enrich order with product details from product service
         List<Product> availableProducts = productService.getAvailableProducts();
         orderService.enrichOrderWithProductDetails(updatedOrder, availableProducts);
-        
+
+        reservationService.createReservation(updatedOrder);
+
         log.info("Successfully processed order: {}", updatedOrder.getId());
 
         return ResponseEntity.ok(updatedOrder);

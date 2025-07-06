@@ -5,6 +5,8 @@ location="eastus"
 env_name="petstore-env"
 acr_name="perstorecontainerregistry"
 ai_name="petstore-insights"
+storage="petstorestorageov202507"
+plan=petstore-plan
 
 tag="latest"
 
