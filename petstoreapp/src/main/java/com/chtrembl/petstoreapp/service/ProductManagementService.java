@@ -30,10 +30,6 @@ public class ProductManagementService {
     private final ContainerEnvironment containerEnvironment;
     private final ProductServiceClient productServiceClient;
 
-    public Collection<Product> getProductByCategoryWithFailure(String category, List<Tag> tags) {
-        throw new RuntimeException("Don't want to load any products, I'm tired");
-    }
-
     public Collection<Product> getProductsByCategory(String category, List<Tag> tags) {
         List<Product> products;
 

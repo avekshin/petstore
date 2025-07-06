@@ -25,7 +25,7 @@ public class PetStoreFacadeService {
     }
 
     public Collection<Product> getProducts(String category, List<Tag> tags) {
-        return productManagementService.getProductByCategoryWithFailure(category, tags);
+        return productManagementService.getProductsByCategory(category, tags);
     }
 
     public void updateOrder(long productId, int quantity, boolean completeOrder) {
