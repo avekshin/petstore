@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=8
+ARG JAVA_VERSION=11
 # This image additionally contains function core tools – useful when using custom extensions
 #FROM mcr.microsoft.com/azure-functions/java:4-java$JAVA_VERSION-core-tools AS installer-env
 FROM mcr.microsoft.com/azure-functions/java:4-java$JAVA_VERSION-build AS installer-env
