@@ -39,3 +39,5 @@ logging:
   level:
     root: INFO
     com.chtrembl: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
+    org.apache.http: DEBUG
