@@ -85,7 +85,6 @@ build_and_push_image() {
 
   full_image="$acr.azurecr.io/$image:$tag"
   pushd "$source" > /dev/null || { echo "❌ Failed to cd into $source"; return 1; }
-#  podman build --platform linux/amd64,linux/arm64 -t "$full_image" .
   podman build --platform linux/amd64 -t "$full_image" .
   podman push "$full_image"
   popd > /dev/null
