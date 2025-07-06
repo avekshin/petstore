@@ -45,7 +45,7 @@ public class ReservationService {
         return headers;
     }
 
-    private HttpEntity<Order> createRequest(Order order, HttpHeaders headers) throws JsonProcessingException {
+    private HttpEntity<Order> createRequest(Order order, HttpHeaders headers) {
         return new HttpEntity<>(order, headers);
     }
 
