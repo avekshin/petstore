@@ -29,7 +29,7 @@ public class Function {
      * 2. curl "{your host}/api/HttpExample?name=HTTP%20Query"
      */
     @FunctionName("reservation")
-    public HttpResponseMessage run(
+    public void run(
             @HttpTrigger(
                     name = "req",
                     methods = {HttpMethod.POST},
@@ -42,7 +42,8 @@ public class Function {
         Optional<Order> orderOpt = request.getBody();
 
         if (!orderOpt.isPresent()) {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Missing order").build();
+            request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Missing order").build();
+            return;
         }
 
         Order order = orderOpt.get();
@@ -55,10 +56,10 @@ public class Function {
 
             context.getLogger().info("Reservation written to blob: " + blobName);
 
-            return request.createResponseBuilder(HttpStatus.OK).body("Order stored").build();
+            request.createResponseBuilder(HttpStatus.OK).body("Order stored").build();
         } catch (Exception e) {
             context.getLogger().severe("Error saving to blob: " + e.getMessage());
-            return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body("Error writing to storage").build();
+            request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body("Error writing to storage").build();
         }
     }
 
